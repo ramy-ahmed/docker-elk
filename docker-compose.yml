@@ -62,7 +62,10 @@ services:
       - elk
     depends_on:
       - elasticsearch
-
+volumes:
+  redis-data:
+    driver: local
+    
 networks:
 
   elk:
