@@ -2,11 +2,22 @@ version: '2'
 
 services:
 
+  redis:
+    image: redis:3.2.6
+    container_name: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/data
+    networks:
+      - elk
+
   elasticsearch:
     build:
       context: elasticsearch/
       args:
         ELK_VERSION: $ELK_VERSION
+    container_name: elasticsearch
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     ports:
@@ -23,6 +34,7 @@ services:
       context: logstash/
       args:
         ELK_VERSION: $ELK_VERSION
+    container_name: logstash
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
@@ -34,6 +46,7 @@ services:
       - elk
     depends_on:
       - elasticsearch
+      - redis
 
   kibana:
     build:
@@ -42,6 +55,7 @@ services:
         ELK_VERSION: $ELK_VERSION
     volumes:
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    container_name: kibana
     ports:
       - "5601:5601"
     networks:
